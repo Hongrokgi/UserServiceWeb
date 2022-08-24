@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: load"></head>
+<body>
+    <br><br><br><br>
+    <form id="form" enctype="multipart/form-data">
+        <div class="container">
+            <div class="mb-3">
+                <label class="form-label">제목</label>
+                <input type="text" id="title" class="form-control" name="" placeholder="제목을 입력해주세요">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">작성자</label>
+                <input type="text" id="writer" class="form-control" name="" placeholder="작성자를 입력해주세요">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">내용</label>
+                <textarea class="form-control" id="summernote" rows="5" name="" placeholder="내용을 입력해주세요"></textarea>
+            </div>
+            <div class="file_container">
+                <div>
+                    <td><input type="file" multiple="multiple" name="file" id="file"></td>
+                </div>
+            </div>
+            <br>
+            <button type="button" class="btn btn-primary" onclick="Register();">등록하기</button>
+        </div>
+    </form>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.js"></script>
+<script th:inline="javascript">
+        window.onload = () => {
+            const token = localStorage.getItem("access_token");
+            if(token != null) {
+                const accessToken = "Bearer "+token+"";
+                $.ajax({
+                    url: 'http://localhost:8080/board/write',
+                    type: "GET",
+                    headers: {"Authorization" : accessToken},
+                    success:function(data) {
+                            console.log(data)
+                       if(data.statusCode == 404) {
+                            location.href='/authFail';
+                       }else if(data.statusCode == 403) {
+                            location.href='/denied';
+                       }
+                    }
+                });
+            }else {
+                location.href='/badRequest';
+            }
+        }
+
+        $('#summernote').summernote({
+            height:150,
+            lang:"ko-KR",
+            placeholder: '내용을 입력해주세요'
+        });
+
+        function Register() {
+            const accessToken = "Bearer "+localStorage.getItem("access_token")+"";
+            $.ajax({
+            url:'http://localhost:8080/board/write',
+            type:"GET",
+            headers:{"Authorization":accessToken},
+            success:function(data) {
+                StatusHandler(data.statusCode);
+            },
+            error:function(data) {
+                StatusHandler(data.status);
+            }
+           });
+        }
+
+        function StatusHandler(status) {
+            if(status == 200) {
+                if(!isValid()) {
+                return false;
+            }
+            Swal.fire({
+                title: '알림',
+                text: '게시글을 등록하시겠습니까?',
+                icon: 'question',
+                showCancelButton:true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '등록',
+                cancelButtonText: '취소',
+                reverseButtons : false,
+            }).then(result => {
+               if(result.isConfirmed) {
+                    var form = document.getElementById('form');
+                    var formData = new FormData(form);
+                    var inputFiles = $("input[name='file']");
+                    var files = inputFiles[0].files;
+                    var title = form.title.value;
+                    var writer = form.writer.value;
+                    var content = $('#summernote').summernote('code');
+                    if(files.length != 0) {
+                        formData.append("title",title);
+                        formData.append("writer",writer);
+                        formData.append("content",content);
+                        for(var i = 0; i< files.length; i++) {
+                            formData.append("uploadFile", files[i]);
+                        }
+                    }else {
+                        formData.append("title",title);
+                        formData.append("writer",writer);
+                        formData.append("content",content);
+                    }
+                    $.ajax({
+                        url: '/board/write',
+                        processData:false,
+                        contentType:false,
+                        type: "POST",
+                        data: formData,
+                        success: function(data) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '등록 알림',
+                                text: '게시글 등록이 완료되었습니다!',
+                            }).then(function() {
+                                location.href='/board/list';
+                            })
+                        }
+                    });
+               }
+            });
+            }else if(status == 404) {
+                 Swal.fire({
+                    icon: 'error',
+                    title: '인증실패 알림',
+                    text: '인증에 실패했습니다. 로그인을 다시 진행해주세요!',
+                }).then(function() {
+                    location.href='/login';
+                })
+            }
+        }
+
+
+
+        function isValid() {
+             if(form.title.value.trim() == "") {
+                Swal.fire({
+                    icon: 'error',
+                    title: '필수항목 누락',
+                    text: '제목을 입력해주세요',
+                });
+                return false;
+           }
+            if(form.writer.value.trim() == "") {
+                Swal.fire({
+                    icon: 'error',
+                    title: '필수항목 누락',
+                    text: '작성자를 입력해주세요',
+                });
+                return false;
+           }
+           if($('#summernote').summernote('isEmpty')) {
+                 Swal.fire({
+                    icon: 'error',
+                    title: '필수항목 누락',
+                    text: '내용을 입력해주세요',
+                });
+                return false;
+           }
+            return true;
+        }
+    </script>
+</html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: load">
+
+</head>
+<body>
+<div class="d-flex align-items-center justify-content-center vh-100">
+    <div class="text-center">
+        <h1 class="display-1 fw-bold">403</h1>
+        <p class="fs-3"> <span class="text-danger">Opps!</span> Access Denied</p>
+        <p class="lead">
+            사용자는 해당 페이지에 접근할 수 없습니다.
+        </p>
+        <a th:href="@{/login}" class="btn btn-primary">Go Login</a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: load"></head>
+<style>
+body {
+  background: #007bff;
+  background: linear-gradient(to right, #0062E6, #33AEFF);
+}
+
+.btn-login {
+  font-size: 0.9rem;
+  letter-spacing: 0.05rem;
+  padding: 0.75rem 1rem;
+}
+
+.btn-google {
+  color: white !important;
+  background-color: #ea4335;
+}
+
+.btn-facebook {
+  color: white !important;
+  background-color: #3b5998;
+}
+</style>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+            <div class="card border-0 shadow rounded-3 my-5">
+                <div class="card-body p-4 p-sm-5">
+                    <h5 class="card-title text-center mb-5 fw-light fs-5">Login</h5>
+                    <div>
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" name="email">
+                            <label for="floatingInput">Email address</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password">
+                            <label for="floatingPassword">Password</label>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-login text-uppercase fw-bold" onclick="Login();">Login</button>
+                        </div>
+                        <hr class="my-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.js"></script>
+<script th:inline="javascript">
+    function Login() {
+        if(!isValid()) {
+            return false;
+        }
+
+        var email = document.querySelector('#floatingInput').value;
+        var password = document.querySelector('#floatingPassword').value;
+        var sendData = {
+                        "email" : email,
+                        "password" : password}
+        $.ajax({
+            contentType: "application/json;charset=utf-8",
+            dataType:'json',
+            url: 'http://localhost:8080/api/login',
+            type: "POST",
+            data:JSON.stringify(sendData),
+            success:function(data) {
+                localStorage.setItem("access_token",data.accessToken);
+                localStorage.setItem("refresh_token",data.refreshToken);
+                var accessToken = "Bearer "+data.accessToken+"";
+                VerifyToken(accessToken);
+            },
+            error:function(data) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '오류발생',
+                    text: 'Email 혹은 password를 올바르게 입력해주세요!',
+                }).then(function() {
+                     location.href='/login';
+                })
+            }
+       });
+    }
+
+    function VerifyToken(accessToken) {
+        $.ajax({
+            url: 'http://localhost:8080/board/list',
+            type: "GET",
+            headers: {"Authorization" : accessToken},
+            success:function(data) {
+                StatusHandler(data.statusCode);
+            }
+        });
+    }
+
+    function StatusHandler(status) {
+        if(status == 200) {
+            location.href='/board/list';
+        }else if (status == 403) {
+            Swal.fire({
+                icon: 'warning',
+                title: '경고알림',
+                text: '사용자는 해당 페이지를 이용할 수 없습니다!',
+            }).then(function() {
+                location.href='/home';
+            });
+        }
+    }
+
+    function isValid() {
+        if(document.querySelector('#floatingInput').value.trim() == "") {
+            Swal.fire({
+                    icon: 'error',
+                    title: '필수항목 누락',
+                    text: '이메일을 입력해주세요',
+                });
+                return false;
+        }
+        if(document.querySelector('#floatingPassword').value.trim() == "") {
+            Swal.fire({
+                    icon: 'error',
+                    title: '필수항목 누락',
+                    text: '비밀번호를 입력해주세요',
+                });
+                return false;
+        }
+        return true;
+    }
+</script>
+</html>

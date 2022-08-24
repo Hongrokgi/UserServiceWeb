@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="common/header :: load"></head>
+<body>
+<form>
+    <div class="container">
+        <div class="mb-3">
+            <label class="form-label">제목</label>
+            <input type="text" id="title" class="form-control" name="">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">작성자</label>
+            <input type="text" id="writer" class="form-control" name="" readonly>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">내용</label>
+            <textarea class="form-control" id="summernote" rows="5" name=""></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">등록일</label>
+            <input type="text" id="createdDate" class="form-control" name="" readonly>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">조회 수</label>
+            <input type="text" id="hits" class="form-control" name="" readonly>
+        </div>
+        <div class="mb-3" id="filetable">
+            <div id="fileHead" class="form-control"></div>
+            <div id="fileInfo" class="form-control"></div>
+        </div>
+    </div>
+</form>
+<div class="button-area" align="center">
+    <button type="button" class="btn btn-primary" onclick="goList();">목록으로 가기</button>
+    <button type="button" class="btn btn-success" onclick="goUpdate();">수정하기</button>
+    <button type="button" class="btn btn-danger"  onclick="goDelete();">삭제하기</button>
+</div>
+</body>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.onload = () => {
+        const token = localStorage.getItem("access_token");
+        if(token != null) {
+            const accessToken = "Bearer "+token+"";
+                $.ajax({
+                    url: 'http://localhost:8080/board/detail',
+                    type: "GET",
+                    headers: {"Authorization" : accessToken},
+                    success:function(data) {
+                       if(data.statusCode == 404) {
+                            location.href='/authFail';
+                       }else if(data.statusCode == 403) {
+                            location.href='/denied';
+                       }
+                    }
+                });
+        }else {
+            location.href='/badRequest';
+        }
+       $('#summernote').summernote({
+            height:150,
+            lang: "ko-KR"
+       });
+            const id = /*[[ ${id} ]]*/;
+            findBoard(id);
+            findFiles(id);
+    }
+
+    function findBoard(id) {
+        $.ajax({
+            url: '/board/detail',
+            type:"GET",
+            data: {"id": id},
+            success:function(data) {
+                $('#title').val(data.title);
+                $('#writer').val(data.writer);
+                $('#summernote').summernote('code', data.content);
+                $('#createdDate').val(data.createdDate);
+                $('#hits').val(data.hits);
+            }
+        });
+    }
+
+    function findFiles(id) {
+       $.ajax({
+           url: '/file/list',
+           type: "GET",
+           data: {"id" : id},
+           success:function(data) {
+                var div = document.getElementById('filetable');
+                var div1 = document.getElementById('fileHead');
+                var div2 = document.getElementById('fileInfo');
+                if(data.length ==0) {
+                    var row = `<p>첨부한 파일이 없습니다.</p>`
+                    div.innerHTML = row
+                }else {
+                    var row = `<table>
+                                <thead>
+                                    <tr>파일명</tr>
+                                </thead>`
+                    div1.innerHTML = row
+                    for(var i = 0; i<data.length; i++) {
+                       var row = `<tbody>
+                                        <td><a href="/boardFile/download/${data[i].id}">${data[i].originName}</a></td>
+                                    </tbody>
+                                        </table>`
+                       div2.innerHTML += row
+                    }
+                }
+           }
+       });
+    }
+
+    function goList() {
+        Swal.fire({
+            title: '알림',
+            text: '목록으로 가시겠습니까?',
+            icon: 'question',
+            showCancelButton:true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: '확인',
+            cancelButtonText: '취소',
+            reverseButtons : false,
+        }).then(result => {
+            if(result.isConfirmed) {
+                location.href='/board/list';
+            }
+        });
+    }
+
+    function goUpdate() {
+        const accessToken = "Bearer "+localStorage.getItem("access_token")+"";
+        $.ajax({
+            url:'http://localhost:8080/board/update',
+            type:"GET",
+            headers:{"Authorization":accessToken},
+            success:function(data) {
+                if(data.statusCode == 200) {
+                    Swal.fire({
+                    title: '알림',
+                    text: '수정하시겠습니까?',
+                    icon: 'question',
+                    showCancelButton:true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '수정',
+                    cancelButtonText: '취소',
+                    reverseButtons : false,
+                    }).then(result => {
+                        if(result.isConfirmed) {
+                            var id = /*[[ ${id} ]]*/;
+                            var title = document.getElementById('title').value;
+                            var content = $('#summernote').summernote('code');
+                            $.ajax({
+                                url:'/board/update',
+                                type: "POST",
+                                data: {"id":id,
+                                       "title":title,
+                                       "content":content},
+                                success:function(data) {
+                                 Swal.fire({
+                                        icon: 'success',
+                                        title: '알림',
+                                        text: '게시글 수정이 완료되었습니다!',
+                                    }).then(function() {
+                                        location.href='/board/list';
+                                    });
+                                }
+                            });
+                    }
+                });
+                }else if(data.statusCode == 404) {
+                    Swal.fire({
+                    icon: 'error',
+                    title: '인증실패 알림',
+                    text: '인증에 실패했습니다. 로그인을 다시 진행해주세요!',
+                }).then(function() {
+                    location.href='/login';
+                })
+                }
+            }
+        });
+
+
+    }
+
+    function goDelete() {
+    const accessToken = "Bearer "+localStorage.getItem("access_token")+"";
+    $.ajax({
+        url: 'http://localhost:8080/board/delete',
+        type:"GET",
+        headers:{"Authorization":accessToken},
+        success:function(data) {
+            if(data.statusCode == 200) {
+                 Swal.fire({
+                    title: '경고알림',
+                    text: '해당 게시글을 삭제하시겠습니까?',
+                    icon: 'warning',
+                    showCancelButton:true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '삭제',
+                    cancelButtonText: '취소',
+                    reverseButtons : false,
+                    }).then(result => {
+                        if(result.isConfirmed) {
+                          var id = /*[[ ${id} ]]*/;
+                          $.ajax({
+                            url: '/board/delete',
+                            type: "GET",
+                            data: {"id":id},
+                            success: function(data) {
+                                Swal.fire({
+                                title: '알림',
+                                text: '게시글이 삭제됐습니다',
+                                icon: 'success',
+                                }).then(function () {
+                                    location.href='/board/list';
+                                });
+                            }
+                          });
+                        }
+                    });
+            }else if(data.statusCode == 404) {
+                    Swal.fire({
+                    icon: 'error',
+                    title: '인증실패 알림',
+                    text: '인증에 실패했습니다. 로그인을 다시 진행해주세요!',
+                }).then(function() {
+                    location.href='/login';
+                })
+            }
+        }
+     });
+
+    }
+    /*]]>*/
+</script>
+</html>
