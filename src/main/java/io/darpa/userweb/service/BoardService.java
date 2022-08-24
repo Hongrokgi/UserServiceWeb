@@ -1,9 +1,9 @@
-package com.devo.bim.Board.service;
+package io.darpa.userweb.service;
 
-import com.devo.bim.Board.controller.dto.BoardRequestDto;
-import com.devo.bim.Board.controller.dto.BoardResponseDto;
-import com.devo.bim.Board.domain.entity.Board;
-import com.devo.bim.Board.repository.BoardRepository;
+import io.darpa.userweb.controller.dto.BoardRequestDto;
+import io.darpa.userweb.controller.dto.BoardResponseDto;
+import io.darpa.userweb.domain.entity.Board;
+import io.darpa.userweb.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

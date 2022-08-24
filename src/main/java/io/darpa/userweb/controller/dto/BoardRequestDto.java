@@ -1,6 +1,6 @@
-package com.devo.bim.Board.controller.dto;
+package io.darpa.userweb.controller.dto;
 
-import com.devo.bim.Board.domain.entity.Board;
+import io.darpa.userweb.domain.entity.Board;
 import lombok.Getter;
 import lombok.Setter;
 

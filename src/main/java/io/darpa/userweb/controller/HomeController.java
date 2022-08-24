@@ -1,4 +1,4 @@
-package com.devo.bim.Board.controller;
+package io.darpa.userweb.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

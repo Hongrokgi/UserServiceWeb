@@ -1,6 +1,6 @@
-package com.devo.bim.Board.controller.dto;
+package io.darpa.userweb.controller.dto;
 
-import com.devo.bim.Board.domain.entity.BoardFile;
+import io.darpa.userweb.domain.entity.BoardFile;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

@@ -1,12 +1,12 @@
-package com.devo.bim.Board.controller;
+package io.darpa.userweb.controller;
 
-import com.devo.bim.Board.controller.dto.BoardRequestDto;
-import com.devo.bim.Board.controller.dto.BoardResponseDto;
-import com.devo.bim.Board.controller.dto.FileRequestDto;
-import com.devo.bim.Board.controller.dto.FileResponseDto;
-import com.devo.bim.Board.domain.entity.Board;
-import com.devo.bim.Board.service.BoardService;
-import com.devo.bim.Board.service.FileService;
+import io.darpa.userweb.controller.dto.BoardRequestDto;
+import io.darpa.userweb.controller.dto.BoardResponseDto;
+import io.darpa.userweb.controller.dto.FileRequestDto;
+import io.darpa.userweb.controller.dto.FileResponseDto;
+import io.darpa.userweb.domain.entity.Board;
+import io.darpa.userweb.service.BoardService;
+import io.darpa.userweb.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;

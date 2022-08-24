@@ -1,6 +1,6 @@
-package com.devo.bim.Board.repository;
+package io.darpa.userweb.repository;
 
-import com.devo.bim.Board.domain.entity.BoardFile;
+import io.darpa.userweb.domain.entity.BoardFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

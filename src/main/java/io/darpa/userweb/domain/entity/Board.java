@@ -1,4 +1,4 @@
-package com.devo.bim.Board.domain.entity;
+package io.darpa.userweb.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

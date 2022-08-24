@@ -1,4 +1,4 @@
-package com.devo.bim.Board.config;
+package io.darpa.userweb.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;

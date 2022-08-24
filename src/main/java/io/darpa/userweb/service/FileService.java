@@ -1,9 +1,9 @@
-package com.devo.bim.Board.service;
+package io.darpa.userweb.service;
 
-import com.devo.bim.Board.controller.dto.FileRequestDto;
-import com.devo.bim.Board.controller.dto.FileResponseDto;
-import com.devo.bim.Board.domain.entity.BoardFile;
-import com.devo.bim.Board.repository.FileRepository;
+import io.darpa.userweb.controller.dto.FileRequestDto;
+import io.darpa.userweb.controller.dto.FileResponseDto;
+import io.darpa.userweb.domain.entity.BoardFile;
+import io.darpa.userweb.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

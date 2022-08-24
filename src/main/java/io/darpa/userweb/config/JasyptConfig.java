@@ -1,4 +1,4 @@
-package com.devo.bim.Board.config;
+package io.darpa.userweb.config;
 
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
